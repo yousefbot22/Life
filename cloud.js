@@ -9,7 +9,7 @@ const CloudStore = (() => {
     const SUPABASE_URL = 'https://krvfsszbffhilxeaqhlc.supabase.co';
     const CONFIG = {
         url: SUPABASE_URL,
-        anonKey: 'sb_publishable_YAD-i3_3XlmsSZpBmpwIEQ_D9UuaHaT'
+        anonKey: 'sb_publishable_x43cT9JmKYazT0JakfZ1Ww_mJBUl90V'
     };
 
     let session = null;
@@ -68,7 +68,7 @@ const CloudStore = (() => {
                 siteSubtitle: settings.hero_text || current.settings.siteSubtitle,
                 startDate: settings.start_date || current.settings.startDate,
                 theme: settings.background || current.settings.theme,
-                sitePassword: current.settings.sitePassword
+                sitePassword: settings.site_password || current.settings.sitePassword
             } : current.settings,
             memories: (rows.memories || []).map(x => ({ id:x.id, title:x.title, description:x.description||'', date:x.memory_date, emoji:x.emoji||'❤️', image:x.image_url||'' })),
             messages: (rows.messages || []).map(x => ({ id:x.id, title:x.title, content:x.content||'', date:x.message_date, emoji:x.emoji||'💌', image:x.image_url||'' })),
@@ -133,13 +133,27 @@ const CloudStore = (() => {
         const settingsRows = await getTable('site_settings');
         const settingsId = settingsRows?.[0]?.id;
         const settingsPayload = {
-            site_title:data.settings.siteTitle||'ذكرياتنا ❤️',
+            site_name:data.settings.siteTitle||'ذكرياتنا ❤️',
+            site_title:data.settings.siteTitle||'ذكرياتنا | قصتنا الجميلة',
             hero_text:data.settings.siteSubtitle||'',
             start_date:data.settings.startDate||new Date().toISOString(),
-            background:data.settings.theme||'dark'
+            background:data.settings.theme||'dark',
+            site_password:data.settings.sitePassword||''
         };
         if (settingsId) await rest(`/rest/v1/site_settings?id=eq.${settingsId}`, {method:'PATCH',body:JSON.stringify(settingsPayload)}, session.access_token);
         else await rest('/rest/v1/site_settings', {method:'POST',body:JSON.stringify(settingsPayload)}, session.access_token);
+
+        const chat = data.chatSettings || {};
+        const chatRows = await getTable('chat_settings');
+        const chatPayload = {
+            ai_name:chat.name||'ذكرياتنا AI',
+            ai_avatar_url:chat.avatar||'❤️',
+            welcome_message:chat.welcome||'',
+            system_prompt:chat.systemPrompt||'',
+            language:chat.language||'ar'
+        };
+        if (chatRows?.[0]?.id) await rest(`/rest/v1/chat_settings?id=eq.${chatRows[0].id}`, {method:'PATCH',body:JSON.stringify(chatPayload)}, session.access_token);
+        else await rest('/rest/v1/chat_settings', {method:'POST',body:JSON.stringify(chatPayload)}, session.access_token);
 
         return true;
     }
