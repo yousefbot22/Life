@@ -6,10 +6,10 @@
 const CloudStore = (() => {
     // This project reuses the Supabase project already bundled with
     // the React version of the site.
-    const SUPABASE_URL = 'https://abotwnwthsojnjreixvg.supabase.co';
+    const SUPABASE_URL = 'https://krvfsszbffhilxeaqhlc.supabase.co';
     const CONFIG = {
         url: SUPABASE_URL,
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFib3R3bnd0aHNvam5qcmVpeHZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MzkxMDAsImV4cCI6MjEwNDQxNTEwMH0.2PfHzaVLLBb8We8pZ2AwcoJaXjP8HJvPFFBsMegPy44'
+        anonKey: 'esb_publishable_YAD-i3_3XlmsSZpBmpwIEQ_D9UuaHaT'
     };
 
     let session = null;
