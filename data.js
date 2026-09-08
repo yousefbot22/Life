@@ -20,21 +20,21 @@ const defaultData = {
         description: 'اليوم الذي تغير فيه كل شيء',
         date: '2026-09-04',
         emoji: '💕',
-        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect width="200" height="200" fill="%231a1015"/%3E%3Ctext x="100" y="115" font-size="70" text-anchor="middle" fill="%23d4a0a0"%3E💕%3C/text%3E%3C/svg%3E'
+        image: 'https://www.pinterest.com/pin/49821139622015014/'
     }, {
         id: 2,
         title: 'أول رسالة',
         description: 'رجعنا لبعض تاني',
         date: '2026-09-02',
         emoji: '💌',
-        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect width="200" height="200" fill="%231a1015"/%3E%3Ctext x="100" y="115" font-size="70" text-anchor="middle" fill="%23d4a0a0"%3E💌%3C/text%3E%3C/svg%3E'
+        image: 'https://www.pinterest.com/pin/30680841209360634/'
     }, {
         id: 3,
         title: 'أجمل يوم',
         description: 'ضحكتك تغير الدنيا',
         date: '2026-09-05',
         emoji: '🌹',
-        image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect width="200" height="200" fill="%231a1015"/%3E%3Ctext x="100" y="115" font-size="70" text-anchor="middle" fill="%23d4a0a0"%3E🌹%3C/text%3E%3C/svg%3E'
+        image: 'https://www.pinterest.com/pin/220817187976387421/'
     }],
 
     // Messages
@@ -44,21 +44,21 @@ const defaultData = {
         content: 'صباح الخير يا أجمل شخص في الكون. كل يوم معك هو هدية.',
         date: '2026-09-06',
         emoji: '🌅',
-        image: ''
+        image: 'https://www.pinterest.com/pin/42221315255560697/'
     }, {
         id: 2,
         title: 'حبي لك',
         content: 'أنت كل شيء بالنسبة لي. لا أتخيل حياتي بدونك.',
         date: '2026-09-06',
         emoji: '❤️',
-        image: ''
+        image: 'https://www.pinterest.com/pin/854276624268880704/'
     }, {
         id: 3,
         title: 'أمنية',
         content: 'أتمنى أن نبقى معًا إلى الأبد. أنت نصفي الآخر.',
         date: '2026-09-06',
         emoji: '✨',
-        image: ''
+        image: 'https://www.pinterest.com/pin/10977592837941912/'
     }],
 
     // Timeline
