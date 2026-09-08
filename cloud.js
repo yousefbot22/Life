@@ -9,7 +9,7 @@ const CloudStore = (() => {
     const SUPABASE_URL = 'https://krvfsszbffhilxeaqhlc.supabase.co';
     const CONFIG = {
         url: SUPABASE_URL,
-        anonKey: 'esb_publishable_YAD-i3_3XlmsSZpBmpwIEQ_D9UuaHaT'
+        anonKey: 'sb_publishable_YAD-i3_3XlmsSZpBmpwIEQ_D9UuaHaT'
     };
 
     let session = null;
