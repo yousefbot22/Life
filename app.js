@@ -10,8 +10,11 @@ window.saveData = saveData;
 window.Utils = Utils;
 
 // Initialize all components
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     'use strict';
+
+    // Load the central cloud copy before any page is rendered.
+    if (window.CloudStore) await window.CloudStore.init();
 
     // ============================================================
     // STATE

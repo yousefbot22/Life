@@ -137,12 +137,15 @@ let AppData = loadData();
 // ============================================================
 // Save function
 // ============================================================
-function saveData() {
+async function saveData() {
     try {
         localStorage.setItem('appData', JSON.stringify(AppData));
-        console.log('✅ Data saved successfully');
+        if (window.CloudStore) {
+            const ok = await window.CloudStore.save(AppData);
+            if (ok) console.log('☁️ Data synced to all devices');
+        }
     } catch (e) {
-        console.warn('Failed to save data:', e);
+        console.warn('Failed to save/sync data:', e);
     }
 }
 
