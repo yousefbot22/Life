@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>ذكرياتنا ❤️</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- ===== FLOATING HEARTS ===== -->
+    <div id="hearts-container"></div>
+
+    <!-- ===== LOGIN OVERLAY ===== -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box glass">
+            <div class="login-logo">💕</div>
+            <h2>ذكرياتنا</h2>
+            <p>أدخل كلمة المرور للدخول</p>
+            <input type="password" id="loginPassword" placeholder="••••••••" />
+            <button id="loginBtn">دخول</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <header class="app-header" id="appHeader">
+            <div class="logo">ذكرياتنا ❤️</div>
+            <div class="header-actions">
+                <button id="adminBtn" style="display:none;" title="لوحة التحكم">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button id="themeBtn" title="تبديل الثيم">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGES -->
+        <div class="page active" id="page-home"></div>
+        <div class="page" id="page-memories"></div>
+        <div class="page" id="page-messages"></div>
+        <div class="page" id="page-chat"></div>
+        <div class="page" id="page-admin"></div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="active" data-page="home">
+                <span class="nav-icon"><i class="fas fa-home"></i></span>
+                <span class="nav-label">الرئيسية</span>
+            </button>
+            <button data-page="memories">
+                <span class="nav-icon"><i class="fas fa-heart"></i></span>
+                <span class="nav-label">ذكريات</span>
+            </button>
+            <button data-page="messages">
+                <span class="nav-icon"><i class="fas fa-envelope"></i></span>
+                <span class="nav-label">رسائل</span>
+            </button>
+            <button data-page="chat">
+                <span class="nav-icon"><i class="fas fa-robot"></i></span>
+                <span class="nav-label">شات</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div class="lightbox-overlay" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
+        <div class="lightbox-content glass">
+            <img id="lbImg" src="" alt="" />
+            <div class="lb-body">
+                <div class="lb-title" id="lbTitle"></div>
+                <div class="lb-desc" id="lbDesc"></div>
+                <div class="lb-date" id="lbDate"></div>
+            </div>
+            <div class="lightbox-nav">
+                <button id="lbPrev"><i class="fas fa-chevron-right"></i> السابق</button>
+                <button id="lbNext">التالي <i class="fas fa-chevron-left"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="data.js"></script>
+    <script src="components/utils.js"></script>
+    <script src="https://w.soundcloud.com/player/api.js"></script>
+    <script src="components/home.js"></script>
+    <script src="components/memories.js"></script>
+    <script src="components/messages.js"></script>
+    <script src="components/chat.js"></script>
+    <script src="components/admin.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
