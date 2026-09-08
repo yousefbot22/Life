@@ -8,8 +8,8 @@ const AdminComponent = {
     currentSection: 'dashboard',
     editingSongId: null, // Track which song is being edited
     // Admin credentials
-    ADMIN_USERNAME: 'love',
-    ADMIN_PASSWORD: 'my live',
+    ADMIN_USERNAME: '',
+    ADMIN_PASSWORD: '',
 
     // Initialize
     init: function() {
@@ -21,11 +21,7 @@ const AdminComponent = {
 
     // Check authentication
     checkAuth: function() {
-        const stored = Utils.storage.get('adminAuth', null);
-        if (stored && stored.username === this.ADMIN_USERNAME) {
-            return true;
-        }
-        return false;
+        return !!(window.CloudStore && window.CloudStore.isAdmin());
     },
 
     // Render
@@ -49,12 +45,12 @@ const AdminComponent = {
                     <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:20px;">أدخل بيانات الدخول</p>
                     <form id="adminLoginForm">
                         <div class="form-group">
-                            <label style="text-align:right;display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;">اسم المستخدم</label>
-                            <input type="text" id="adminUsername" placeholder="love" value="love" style="text-align:center;" />
+                            <label style="text-align:right;display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;">البريد الإلكتروني</label>
+                            <input type="email" id="adminUsername" placeholder="admin@example.com" style="text-align:center;" required />
                         </div>
                         <div class="form-group">
                             <label style="text-align:right;display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;">كلمة المرور</label>
-                            <input type="password" id="adminPassword" placeholder="••••••••" style="text-align:center;" />
+                            <input type="password" id="adminPassword" placeholder="••••••••" style="text-align:center;" required />
                         </div>
                         <div id="adminLoginError" style="color:#e74c3c;font-size:0.85rem;min-height:24px;margin-bottom:10px;"></div>
                         <button type="submit" style="width:100%;padding:12px;border:none;border-radius:30px;background:var(--accent);color:#fff;font-family:var(--font);font-weight:700;cursor:pointer;transition:var(--transition);font-size:1rem;">
@@ -75,7 +71,7 @@ const AdminComponent = {
                     <h2>📊 لوحة التحكم</h2>
                     <div style="display:flex;gap:10px;align-items:center;">
                         <span style="font-size:0.8rem;color:var(--text-secondary);">
-                            <i class="fas fa-user"></i> ${this.ADMIN_USERNAME}
+                            <i class="fas fa-user"></i> ${window.CloudStore?.getSession()?.user?.email || 'Admin'}
                         </span>
                         <button id="adminLogoutBtn" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:0.85rem;font-family:var(--font);padding:4px 12px;border-radius:20px;transition:var(--transition);">
                             <i class="fas fa-sign-out-alt"></i> خروج
@@ -434,21 +430,22 @@ const AdminComponent = {
 
     // Render security manager
     renderSecurityManager: function() {
+        const email = window.CloudStore?.getSession()?.user?.email || '';
         return `
             <div class="admin-form">
                 <div class="form-title">🔐 تغيير بيانات الدخول</div>
                 <form id="securityForm">
                     <div class="form-group">
-                        <label>اسم المستخدم الحالي</label>
-                        <input type="text" id="currentUsername" value="${this.ADMIN_USERNAME}" disabled style="opacity:0.6;" />
+                        <label>البريد الإلكتروني الحالي</label>
+                        <input type="email" id="currentUsername" value="${email}" disabled style="opacity:0.6;" />
                     </div>
                     <div class="form-group">
                         <label>كلمة المرور الحالية</label>
                         <input type="password" id="currentPassword" placeholder="••••••••" required />
                     </div>
                     <div class="form-group">
-                        <label>اسم المستخدم الجديد</label>
-                        <input type="text" id="newUsername" placeholder="اسم مستخدم جديد" />
+                        <label>البريد الإلكتروني الجديد</label>
+                        <input type="email" id="newUsername" placeholder="اتركه فارغًا لعدم التغيير" />
                     </div>
                     <div class="form-group">
                         <label>كلمة المرور الجديدة</label>
@@ -459,7 +456,7 @@ const AdminComponent = {
                         <input type="password" id="confirmPassword" placeholder="••••••••" />
                     </div>
                     <div style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:12px;">
-                        <i class="fas fa-info-circle"></i> اترك الحقول فارغة إذا لم ترغب في تغييرها
+                        <i class="fas fa-info-circle"></i> بيانات الدخول أصبحت مركزية ومحفوظة في Supabase.
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-save">💾 تحديث البيانات</button>
@@ -564,9 +561,10 @@ const AdminComponent = {
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (confirm('هل أنت متأكد من حذف هذه الذكرى؟')) {
-                    const id = parseInt(btn.dataset.id);
+                    const id = btn.dataset.id;
                     const data = window.AppData || AppData;
                     data.memories = data.memories.filter(m => m.id !== id);
+                    window.saveData();
                     this.showSection('memories');
                     if (window.HomeComponent) window.HomeComponent.render();
                     if (window.MemoriesComponent) window.MemoriesComponent.render();
@@ -599,9 +597,10 @@ const AdminComponent = {
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (confirm('هل أنت متأكد من حذف هذه الرسالة؟')) {
-                    const id = parseInt(btn.dataset.id);
+                    const id = btn.dataset.id;
                     const data = window.AppData || AppData;
                     data.messages = data.messages.filter(m => m.id !== id);
+                    window.saveData();
                     this.showSection('messages');
                     if (window.MessagesComponent) window.MessagesComponent.render();
                 }
@@ -629,9 +628,10 @@ const AdminComponent = {
 
                 if (editId) {
                     // EDIT: Update existing song
-                    const index = data.songs.findIndex(s => s.id === parseInt(editId));
+                    const index = data.songs.findIndex(s => s.id === editId);
                     if (index !== -1) {
                         data.songs[index] = { ...data.songs[index], ...songData };
+                        window.saveData();
                     }
                     this.editingSongId = null;
                 } else {
@@ -662,7 +662,7 @@ const AdminComponent = {
         // Edit buttons
         document.querySelectorAll('.edit-song-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
+                const id = btn.dataset.id;
                 this.editingSongId = id;
                 this.showSection('songs');
             });
@@ -672,9 +672,10 @@ const AdminComponent = {
         document.querySelectorAll('.delete-song-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (confirm('هل أنت متأكد من حذف هذه الأغنية؟')) {
-                    const id = parseInt(btn.dataset.id);
+                    const id = btn.dataset.id;
                     const data = window.AppData || AppData;
                     data.songs = data.songs.filter(s => s.id !== id);
+                    window.saveData();
                     if (this.editingSongId === id) this.editingSongId = null;
                     this.showSection('songs');
                     if (window.HomeComponent) {
@@ -709,6 +710,7 @@ const AdminComponent = {
                     const index = parseInt(btn.dataset.index);
                     const data = window.AppData || AppData;
                     data.timeline.splice(index, 1);
+                    window.saveData();
                     this.showSection('timeline');
                     if (window.HomeComponent) window.HomeComponent.render();
                 }
@@ -726,6 +728,7 @@ const AdminComponent = {
                 data.settings.siteTitle = document.getElementById('siteTitle').value;
                 data.settings.siteSubtitle = document.getElementById('siteSubtitle').value;
                 data.settings.startDate = document.getElementById('startDate').value;
+                window.saveData();
                 alert('✅ تم حفظ الإعدادات بنجاح');
                 if (window.HomeComponent) window.HomeComponent.render();
             });
@@ -735,50 +738,29 @@ const AdminComponent = {
     // Bind security events
     bindSecurityEvents: function() {
         const form = document.getElementById('securityForm');
-        if (form) {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const currentPass = document.getElementById('currentPassword').value;
-                const newUsername = document.getElementById('newUsername').value;
-                const newPass = document.getElementById('newPassword').value;
-                const confirmPass = document.getElementById('confirmPassword').value;
-
-                // Check current password
-                if (currentPass !== this.ADMIN_PASSWORD) {
-                    alert('❌ كلمة المرور الحالية غير صحيحة');
-                    return;
-                }
-
-                // Update username if provided
-                if (newUsername && newUsername.length > 0) {
-                    this.ADMIN_USERNAME = newUsername;
-                }
-
-                // Update password if provided
-                if (newPass && newPass.length > 0) {
-                    if (newPass !== confirmPass) {
-                        alert('❌ كلمة المرور الجديدة غير متطابقة');
-                        return;
-                    }
-                    if (newPass.length < 4) {
-                        alert('❌ كلمة المرور يجب أن تكون 4 أحرف على الأقل');
-                        return;
-                    }
-                    this.ADMIN_PASSWORD = newPass;
-                    // Update stored auth
-                    Utils.storage.set('adminAuth', {
-                        username: this.ADMIN_USERNAME,
-                        timestamp: Date.now()
-                    });
-                }
-
-                alert('✅ تم تحديث بيانات الدخول بنجاح');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPass = document.getElementById('currentPassword').value;
+            const newEmail = document.getElementById('newUsername').value.trim();
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            const currentEmail = window.CloudStore?.getSession()?.user?.email;
+            if (!currentEmail) return alert('❌ جلسة Admin غير موجودة');
+            try {
+                // Re-authenticate before changing credentials.
+                await window.CloudStore.login(currentEmail, currentPass);
+                if (newPass && newPass !== confirmPass) return alert('❌ كلمة المرور الجديدة غير متطابقة');
+                if (newPass && newPass.length < 6) return alert('❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                if (newEmail || newPass) await window.CloudStore.updateUser({ email: newEmail || undefined, password: newPass || undefined });
+                alert('✅ تم تحديث بيانات الدخول المركزية بنجاح');
                 form.reset();
-                // Refresh the page to show updated username
                 this.render();
                 this.bindEvents();
-            });
-        }
+            } catch (err) {
+                alert('❌ ' + (err.message || 'تعذر تحديث بيانات الدخول'));
+            }
+        });
     },
 
     // Bind music events
@@ -803,6 +785,7 @@ const AdminComponent = {
                 } else {
                     data.songs[0].audioUrl = audioUrl || '';
                     data.songs[0].cover = cover || '';
+                    window.saveData();
                 }
                 
                 alert('✅ تم تحديث الموسيقى بنجاح');
@@ -869,23 +852,36 @@ const AdminComponent = {
         // Admin login
         const loginForm = document.getElementById('adminLoginForm');
         if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const username = document.getElementById('adminUsername').value;
                 const password = document.getElementById('adminPassword').value;
                 const errorEl = document.getElementById('adminLoginError');
 
-                if (username === this.ADMIN_USERNAME && password === this.ADMIN_PASSWORD) {
+                if (!window.CloudStore) {
+                    errorEl.textContent = '❌ خدمة التخزين السحابي غير متاحة';
+                    return;
+                }
+                errorEl.textContent = '⏳ جاري تسجيل الدخول...';
+                try {
+                    await window.CloudStore.login(username.trim(), password);
+                    this.ADMIN_USERNAME = username.trim();
                     this.isLoggedIn = true;
-                    Utils.storage.set('adminAuth', {
-                        username: username,
-                        timestamp: Date.now()
-                    });
                     this.render();
                     this.bindEvents();
                     errorEl.textContent = '';
-                } else {
-                    errorEl.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+                    // If the cloud database is empty, upload the current defaults once.
+                    const cloud = await window.CloudStore.load();
+                    if (!cloud.memories.length && !cloud.messages.length && !cloud.songs.length && !cloud.timeline.length) {
+                        await window.CloudStore.save(window.AppData || AppData);
+                    } else {
+                        window.AppData = cloud;
+                        AppData = cloud;
+                    }
+                    this.render();
+                    this.bindEvents();
+                } catch (err) {
+                    errorEl.textContent = '❌ ' + (err.message || 'بيانات الدخول غير صحيحة');
                 }
             });
         }
@@ -901,9 +897,9 @@ const AdminComponent = {
         // Logout
         const logoutBtn = document.getElementById('adminLogoutBtn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
+            logoutBtn.addEventListener('click', async () => {
                 if (confirm('هل أنت متأكد من الخروج؟')) {
-                    Utils.storage.remove('adminAuth');
+                    await window.CloudStore.logout();
                     this.isLoggedIn = false;
                     this.render();
                     this.bindEvents();
