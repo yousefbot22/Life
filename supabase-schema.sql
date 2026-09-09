@@ -21,6 +21,10 @@ create table if not exists site_settings (
  updated_at timestamptz not null default now()
 );
 
+
+-- Central site password (shared by all devices)
+alter table public.site_settings add column if not exists site_password text not null default '15122007';
+
 create table if not exists memories (id uuid primary key default gen_random_uuid(), title text not null, description text not null default '', image_url text, memory_date date not null default current_date, emoji text not null default '❤️', sort_order integer not null default 0, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create table if not exists messages (id uuid primary key default gen_random_uuid(), title text not null, content text not null, message_date date not null default current_date, emoji text not null default '💌', image_url text, sort_order integer not null default 0, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create table if not exists songs (id uuid primary key default gen_random_uuid(), title text not null, artist text not null default '', audio_url text not null, cover_url text, description text not null default '', sort_order integer not null default 0, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
@@ -39,6 +43,11 @@ alter table messages enable row level security;
 alter table songs enable row level security;
 alter table timeline enable row level security;
 alter table chat_settings enable row level security;
+
+
+-- Admin needs to read only their own profile after Supabase login.
+drop policy if exists profiles_self_read on public.profiles;
+create policy profiles_self_read on public.profiles for select to authenticated using (id = auth.uid());
 
 DO $$ DECLARE t text; BEGIN FOREACH t IN ARRAY ARRAY['site_settings','memories','messages','songs','timeline','chat_settings'] LOOP EXECUTE format('drop policy if exists %I on public.%I',t||'_public_read',t); EXECUTE format('create policy %I on public.%I for select to anon,authenticated using(true)',t||'_public_read',t); EXECUTE format('drop policy if exists %I on public.%I',t||'_admin_insert',t); EXECUTE format('create policy %I on public.%I for insert to authenticated with check(public.is_admin())',t||'_admin_insert',t); EXECUTE format('drop policy if exists %I on public.%I',t||'_admin_update',t); EXECUTE format('create policy %I on public.%I for update to authenticated using(public.is_admin()) with check(public.is_admin())',t||'_admin_update',t); EXECUTE format('drop policy if exists %I on public.%I',t||'_admin_delete',t); EXECUTE format('create policy %I on public.%I for delete to authenticated using(public.is_admin())',t||'_admin_delete',t); END LOOP; END $$;
 

@@ -268,6 +268,46 @@ document.addEventListener('DOMContentLoaded', async function() {
             window.AdminComponent.init();
             window.AdminComponent.initialized = true;
         }
+
+        // Keep already-open visitor devices in sync with the central database.
+        // Admin screens are excluded while editing to avoid overwriting unsaved work.
+        setInterval(async () => {
+            if (!window.CloudStore || window.CloudStore.isAdmin()) return;
+            try {
+                const cloud = await window.CloudStore.load();
+                const current = window.AppData || AppData;
+                const signature = JSON.stringify({
+                    settings: cloud.settings, memories: cloud.memories, messages: cloud.messages,
+                    songs: cloud.songs, timeline: cloud.timeline, chatSettings: cloud.chatSettings
+                });
+                const currentSignature = JSON.stringify({
+                    settings: current.settings, memories: current.memories, messages: current.messages,
+                    songs: current.songs, timeline: current.timeline, chatSettings: current.chatSettings
+                });
+                if (signature !== currentSignature) {
+                    window.AppData = cloud;
+                    AppData = cloud;
+                    localStorage.setItem('appData', JSON.stringify(cloud));
+                    if (currentPage === 'home' && window.HomeComponent) {
+                        window.HomeComponent.render();
+                        window.HomeComponent.startCounter();
+                        window.HomeComponent.bindEvents();
+                        window.HomeComponent.updateMusic();
+                    } else if (currentPage === 'memories' && window.MemoriesComponent) {
+                        window.MemoriesComponent.render();
+                        window.MemoriesComponent.bindEvents();
+                    } else if (currentPage === 'messages' && window.MessagesComponent) {
+                        window.MessagesComponent.render();
+                        window.MessagesComponent.bindEvents();
+                    } else if (currentPage === 'chat' && window.ChatComponent) {
+                        window.ChatComponent.render();
+                        window.ChatComponent.bindEvents();
+                    }
+                }
+            } catch (e) {
+                console.warn('Cloud refresh failed:', e);
+            }
+        }, 10000);
     }
 
     // Start the app
