@@ -84,7 +84,7 @@ const CloudStore = (() => {
 
     async function load() {
         const [settings, memories, messages, songs, timeline, chatSettings] = await Promise.all([
-            getTable('site_settings'), getTable('memories'), getTable('messages'), getTable('songs'), getTable('timeline'), getTable('chat_settings')
+            getTable('site_settings?select=*&order=updated_at.desc&limit=1'), getTable('memories'), getTable('messages'), getTable('songs'), getTable('timeline'), getTable('chat_settings')
         ]);
         return mapFromCloud({ memories, messages, songs, timeline }, settings, chatSettings);
     }
@@ -130,7 +130,7 @@ const CloudStore = (() => {
             id:x.id, title:x.title||'', description:x.description||'', timeline_date:x.date || new Date().toISOString().slice(0,10), emoji:x.emoji||'✨', image_url:x.image||'', sort_order:0
         }));
 
-        const settingsRows = await getTable('site_settings');
+        const settingsRows = await getTable('site_settings?select=*&order=updated_at.desc&limit=1');
         const settingsId = settingsRows?.[0]?.id;
         const settingsPayload = {
             site_name:data.settings.siteTitle||'ذكرياتنا ❤️',
