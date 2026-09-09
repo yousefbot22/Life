@@ -1,3 +1,11 @@
+// Show cloud sync failures clearly instead of failing silently.
+window.addEventListener('cloud-sync-error', (event) => {
+    const msg = event?.detail?.message || 'فشل حفظ التعديلات في Supabase';
+    console.error('☁️ Cloud sync error:', msg);
+    const el = document.getElementById('adminLoginError');
+    if (el) el.textContent = '⚠️ فشل المزامنة: ' + msg;
+});
+
 // ============================================================
 // ADMIN PAGE COMPONENT - FIXED SONGS MANAGEMENT
 // ============================================================
