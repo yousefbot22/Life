@@ -145,7 +145,9 @@ async function saveData() {
             if (ok) console.log('☁️ Data synced to all devices');
         }
     } catch (e) {
-        console.warn('Failed to save/sync data:', e);
+        console.error('☁️ Cloud sync failed:', e);
+        // Keep localStorage as a fallback, but make the cloud failure obvious.
+        window.dispatchEvent(new CustomEvent('cloud-sync-error', { detail: { message: e?.message || String(e) } }));
     }
 }
 

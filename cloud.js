@@ -31,7 +31,7 @@ const CloudStore = (() => {
         let body = null;
         try { body = text ? JSON.parse(text) : null; } catch (_) { body = text; }
         if (!response.ok) {
-            const message = body?.message || body?.error_description || body?.hint || body?.error || `HTTP ${response.status}`;
+            const message = body?.message || body?.error_description || body?.hint || body?.msg || body?.error || body?.code || `HTTP ${response.status}`;
             throw new Error(message);
         }
         return body;
@@ -112,22 +112,22 @@ const CloudStore = (() => {
     }
 
     async function save(data) {
-        if (!session?.access_token) return false;
+        if (!session?.access_token) throw new Error('جلسة Admin غير موجودة أو انتهت. سجّل دخول Admin مرة أخرى.');
         ensureIds(data);
 
         await syncTable('memories', data.memories || [], x => ({
-            id:x.id, title:x.title||'', description:x.description||'', image_url:x.image||null,
+            id:x.id, title:x.title||'', description:x.description||'', image_url:x.image||'',
             memory_date:x.date || new Date().toISOString().slice(0,10), emoji:x.emoji||'❤️', sort_order:0
         }));
         await syncTable('messages', data.messages || [], x => ({
             id:x.id, title:x.title||'', content:x.content||'', message_date:x.date || new Date().toISOString().slice(0,10),
-            emoji:x.emoji||'💌', image_url:x.image||null, sort_order:0
+            emoji:x.emoji||'💌', image_url:x.image||'', sort_order:0
         }));
         await syncTable('songs', data.songs || [], x => ({
-            id:x.id, title:x.name||'', artist:x.artist||'', audio_url:x.audioUrl||'', cover_url:x.cover||null, description:x.description||'', sort_order:0
+            id:x.id, title:x.name||'', artist:x.artist||'', audio_url:x.audioUrl||'', cover_url:x.cover||'', description:x.description||'', sort_order:0
         }));
         await syncTable('timeline', data.timeline || [], x => ({
-            id:x.id, title:x.title||'', description:x.description||'', timeline_date:x.date || new Date().toISOString().slice(0,10), emoji:x.emoji||'✨', image_url:x.image||null, sort_order:0
+            id:x.id, title:x.title||'', description:x.description||'', timeline_date:x.date || new Date().toISOString().slice(0,10), emoji:x.emoji||'✨', image_url:x.image||'', sort_order:0
         }));
 
         const settingsRows = await getTable('site_settings');
@@ -159,14 +159,29 @@ const CloudStore = (() => {
     }
 
     async function login(email, password) {
-        const result = await rest('/auth/v1/token?grant_type=password', { method:'POST', body:JSON.stringify({ email, password }) });
-        if (!result?.access_token) throw new Error('تعذر تسجيل الدخول');
+        let result;
+        try {
+            result = await rest('/auth/v1/token?grant_type=password', { method:'POST', body:JSON.stringify({ email, password }) });
+        } catch (e) {
+            const msg = String(e?.message || '');
+            if (msg === 'email_not_confirmed') throw new Error('الإيميل غير مؤكد من Supabase. أكد البريد من Authentication ثم جرّب مرة أخرى.');
+            if (msg === 'invalid_credentials') throw new Error('الإيميل أو كلمة المرور غير صحيحة.');
+            if (msg === 'invalid_api_key') throw new Error('مفتاح Supabase غير صحيح للمشروع الحالي.');
+            throw e;
+        }
+        if (!result?.access_token) throw new Error('تعذر تسجيل الدخول إلى Supabase.');
         setSession(result);
         // Verify that the account is an admin before allowing writes.
-        const profile = await rest(`/rest/v1/profiles?id=eq.${encodeURIComponent(result.user.id)}&select=id,role`, {}, result.access_token);
+        let profile;
+        try {
+            profile = await rest(`/rest/v1/profiles?id=eq.${encodeURIComponent(result.user.id)}&select=id,role`, {}, result.access_token);
+        } catch (e) {
+            setSession(null);
+            throw new Error(`تم تسجيل الدخول، لكن تعذر قراءة صلاحية Admin: ${e.message}`);
+        }
         if (!profile?.[0] || profile[0].role !== 'admin') {
             setSession(null);
-            throw new Error('الحساب ليس Admin');
+            throw new Error('تم تسجيل الدخول، لكن الحساب ليس Admin. شغّل ملف MAKE_ADMIN.sql مرة واحدة في Supabase.');
         }
         return result;
     }
