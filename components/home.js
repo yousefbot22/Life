@@ -221,15 +221,35 @@ const HomeComponent = {
         const data = window.AppData || AppData;
         const start = new Date(data.settings.startDate);
         const now = new Date();
-        let diff = (now - start) / 1000;
 
-        if (diff < 0) diff = 0;
-        const seconds = Math.floor(diff);
+        // Calendar-accurate elapsed time. Do not approximate months as 30.44 days.
+        let years = 0;
+        let months = 0;
+        let cursor = new Date(start);
+        if (!Number.isNaN(start.getTime()) && now >= start) {
+            years = now.getFullYear() - start.getFullYear();
+            cursor.setFullYear(start.getFullYear() + years);
+            if (cursor > now) {
+                years--;
+                cursor.setFullYear(start.getFullYear() + years);
+            }
+
+            months = now.getMonth() - cursor.getMonth();
+            if (months < 0) months += 12;
+            cursor.setMonth(cursor.getMonth() + months);
+            if (cursor > now) {
+                months--;
+                cursor = new Date(start);
+                cursor.setFullYear(start.getFullYear() + years);
+                cursor.setMonth(cursor.getMonth() + months);
+            }
+        }
+
+        const diff = (!Number.isNaN(start.getTime()) && now >= start) ? Math.floor((now - cursor) / 1000) : 0;
+        const seconds = diff;
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
-        const months = Math.floor(days / 30.44);
-        const years = Math.floor(months / 12);
 
         const els = {
             years: document.getElementById('years'),
@@ -241,8 +261,8 @@ const HomeComponent = {
         };
 
         if (els.years) els.years.textContent = years;
-        if (els.months) els.months.textContent = months % 12;
-        if (els.days) els.days.textContent = days % 30;
+        if (els.months) els.months.textContent = months;
+        if (els.days) els.days.textContent = days;
         if (els.hours) els.hours.textContent = hours % 24;
         if (els.minutes) els.minutes.textContent = minutes % 60;
         if (els.seconds) els.seconds.textContent = seconds % 60;
