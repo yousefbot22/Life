@@ -420,6 +420,10 @@ const AdminComponent = {
                         <label>تاريخ البداية</label>
                         <input type="datetime-local" id="startDate" value="${Utils.formatDateInput(settings.startDate)}" />
                     </div>
+                    <div class="form-group">
+                        <label>كلمة مرور الموقع (مركزية)</label>
+                        <input type="password" id="sitePassword" value="${settings.sitePassword || ''}" placeholder="كلمة مرور دخول الموقع" />
+                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-save">💾 حفظ الإعدادات</button>
                     </div>
@@ -722,14 +726,15 @@ const AdminComponent = {
     bindSettingsEvents: function() {
         const form = document.getElementById('settingsForm');
         if (form) {
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const data = window.AppData || AppData;
                 data.settings.siteTitle = document.getElementById('siteTitle').value;
                 data.settings.siteSubtitle = document.getElementById('siteSubtitle').value;
                 data.settings.startDate = document.getElementById('startDate').value;
-                window.saveData();
-                alert('✅ تم حفظ الإعدادات بنجاح');
+                data.settings.sitePassword = document.getElementById('sitePassword').value;
+                await window.saveData();
+                alert('✅ تم حفظ الإعدادات مركزيًا لكل الأجهزة');
                 if (window.HomeComponent) window.HomeComponent.render();
             });
         }
